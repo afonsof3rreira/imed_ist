@@ -5,7 +5,7 @@ from roipoly import RoiPoly
 from scipy.ndimage import gaussian_filter
 
 # 1. Loading 3D image data and getting dimensions and basic stats
-x = loadmat('brain3D.mat')
+x = loadmat('data/brain3D.mat')
 
 # select variable 'im' and convert it from dictionary to numpy array
 im = np.array(x['im'])
