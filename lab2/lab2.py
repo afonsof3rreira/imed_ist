@@ -220,6 +220,29 @@ Intensity = 10 ** 3
 S_scaled = (S_step_i[1] * Intensity) / (np.max(np.max(S_step_i[1])))
 a = 1 / next_power_of_2(len(np.unique(S_scaled)))
 S_noise = util.random_noise(S_scaled * a, 'poisson')  # explicar poisson
+print(np.max(S_scaled))
+print(np.min(S_scaled))
+
+# a pixel value is determined by the detection of N photons
+# the uncertainty/noise associated with the measurement is given by the biggest sqrt(N) for any N of the img
+# if the instrument is ideal the most black intensity value = 0, but with noise it's N_dark > 0.
+# It's a quantum noise that controls the brighter pixels
+# Every next distinguishable intensity level is given by N +/- sqrt(N), but this step size varies with intensity
+# (non linear)
+# The dynamic range is given by N_brightest - N_darkest
+# The number of levels is given by sqrt(N_brightest) - sqrt(N_darkest)
+
+# import numpy as np
+# import matplotlib.pyplot as plt
+# n_bins = math.ceil(np.sqrt(1000))
+# print(n_bins)
+# photons_vec = np.linspace(0, 1000, 1001)
+# bin_vec
+# histogram_occurrences_2, bin_edges_2 = np.histogram(S_scaled, bins=4)
+# print(bin_edges_2)
+# plt.figure()
+# plt.plot(bin_edges_2[0:-1], histogram_occurrences_2)
+# plt.show()
 
 plt.figure()
 plt.title("Sinogram with noise")
@@ -234,7 +257,8 @@ theta = np.linspace(0., 180., 181, endpoint=True)
 R_noise = iradon(S_noise, theta)
 plt.figure()
 plt.title("Recontructed image with noise, Ram-Lak filter")
-plt.imshow(R_noise, cmap=plt.cm.gray)
+plt.imshow(R_noise, cmap="gray")
+plt.show()
 
 # Ex.8 Repeat 7, by replacing the original Ram-Lak filter by modified filters (available in
 # iradon), and explain the results as a function of their different frequency resp
