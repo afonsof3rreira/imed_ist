@@ -23,12 +23,15 @@ def next_power_of_2(x):
     return 1 if x == 0 else 2 ** math.ceil(math.log2(x))
 
 
+# choose whether or not to display scaled Sinograms and images in the same figure
+plots_same_figure = True
+
 # Ex.1 Generate the modified Shepp-Logan phantom using the function
 # shepp_logan_phantom, and then using the function rescale to get a 256x256
 # dimension.
 
 # generating the Shepp-logan phantom square image with Height x Width = n x n
-I = data.shepp_logan_phantom() # ndarray of the phantom
+I = data.shepp_logan_phantom()  # ndarray of the phantom
 scaling_factor = 256 / I.shape[0]
 I = rescale(I, scaling_factor)  # 256 / 400 = 0.64
 
@@ -42,16 +45,14 @@ plt.show()
 hist_phantom = sn.distplot(I, bins=64)
 histogram_occurrences, bin_edges = np.histogram(I, bins=64)
 
-
-
 x_ticks = [np.round(bin_edges[i], 4) for i in range(len(bin_edges) - 1) if histogram_occurrences[i] > 1000]
 
 hist_phantom.set_xticklabels(x_ticks, fontdict={'fontsize': 8, 'fontweight': 'bold'}, rotation=35, fontsize=10,
-                       linespacing=1.5)
+                             linespacing=1.5)
 text_str = "Bin size = " + str(np.round(1 / 64, 4))
 props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
 hist_phantom.text(0.05, 0.95, text_str, transform=hist_phantom.transAxes, fontsize=14,
-        verticalalignment='top', bbox=props)
+                  verticalalignment='top', bbox=props)
 
 plt.show()
 
@@ -61,8 +62,8 @@ plt.show()
 theta = np.linspace(0., 180., 181, endpoint=True)
 S = radon(I, theta)
 plt.figure()
-plt.title("Sinogram, [0;180]º, steps of 1º")
-plt.imshow(S, cmap=plt.cm.gray)
+plt.title("Sinogram, [0;180]\N{DEGREE SIGN}, steps of 1\N{DEGREE SIGN}")
+plt.imshow(S, cmap="gray")
 plt.show()
 
 # Ex.3 Simulate the associated reconstructed image using the inverse Radon transform (using
@@ -70,13 +71,12 @@ plt.show()
 
 R = iradon(S, theta)
 plt.figure()
-plt.title("Recontructed image, [0;180]º, steps of 1º")
-plt.imshow(R, cmap=plt.cm.gray)
+plt.title("Recontructed image, [0;180]\N{DEGREE SIGN}, steps of 1\N{DEGREE SIGN}")
+plt.imshow(R, cmap="gray")
 plt.show()
 
 # Ex.4 Repeat the simulations in 2. and 3. by covering: [0;45]°, [0;90]°, [0;180]° and [0;360]°,
 # in steps of 1°
-show_subplots = True
 Sinogram_tensor = []
 Reconstruction_tensor = []
 
@@ -86,13 +86,13 @@ for i in range(1, 5):
     Si = radon(I, alfa)
     print(Si.shape)
     Ri = iradon(Si, alfa)
-    if not show_subplots:
+    if not plots_same_figure:
         plt.figure()
-        plt.title("Sinogram, [0," + str(j) + "º], steps of 1º")
+        plt.title("Sinogram, [0," + str(j) + "\N{DEGREE SIGN}], steps of 1\N{DEGREE SIGN}")
         plt.imshow(Si, cmap="gray")
 
         plt.figure()
-        plt.title("Reconstructed image, [0," + str(j) + "º], steps of 1º")
+        plt.title("Reconstructed image, [0," + str(j) + "\N{DEGREE SIGN}], steps of 1\N{DEGREE SIGN}")
         plt.imshow(Ri, cmap="gray")
         plt.show()
     else:
@@ -100,15 +100,15 @@ for i in range(1, 5):
         Reconstruction_tensor.append(Ri)
 
 # Alternative plotting method
-if show_subplots:
+if plots_same_figure:
     fig_singrs = plt.figure()
-    widths = [1, 91/46, 181/46, 361/46]
+    widths = [1, 91 / 46, 181 / 46, 361 / 46]
     heights = [1]
     grid_singrs = fig_singrs.add_gridspec(ncols=4, nrows=1, width_ratios=widths, height_ratios=heights)
     for i in range(0, 4):
         ax = fig_singrs.add_subplot(grid_singrs[0, i])
         plt.imshow(Sinogram_tensor[i], cmap="gray")
-        plt.title("Sinogram, [0, {}º]".format(45 * (2 ** (i))), fontsize=10, rotation=30)
+        plt.title("Sinogram, [0, {}\N{DEGREE SIGN}]".format(45 * (2 ** (i))), fontsize=10, rotation=30)
     plt.show()
 
     fig_reconstrs = plt.figure()
@@ -116,7 +116,7 @@ if show_subplots:
     for i in range(0, 4):
         ax = fig_reconstrs.add_subplot(grid_reconstrs[0, i])
         plt.imshow(Reconstruction_tensor[i], cmap="gray")
-        plt.title("Reconstruction, [0, {}º]".format(45 * (2 ** (i))), fontsize=10, rotation=30)
+        plt.title("Reconstruction, [0, {}\N{DEGREE SIGN}]".format(45 * (2 ** (i))), fontsize=10, rotation=30)
     plt.show()
 
 # In order to reconstruct an image, you need 180 degrees of data (* actually 180 + fan beam angle). 
@@ -128,70 +128,103 @@ if show_subplots:
 
 # Ex.5 Repeat the simulations in 2. and 3. by covering [0;180]°, in steps of 0.25, 1, 5 and 10°
 
-# Step = 0.25º
-omega_025 = np.linspace(0., 180., 724, endpoint=True)  # 181%0.25
-S_025 = radon(I, omega_025)
-plt.figure()
-plt.title("Sinogram, [0;180º], steps of 0.25º")
-plt.imshow(S_025, cmap="gray")
+angle_steps = [0.25, 1., 5., 10.]
+theta_angle_tensor, S_step_i, R_step_i = [], [], []
 
-R_025 = iradon(S_025, omega_025)
-plt.figure()
-plt.title("Reconstructed image, [0;180º], steps of 0.25º")
-plt.imshow(R_025, cmap="gray")
-plt.show()
+for i in range(len(angle_steps)):
+    theta_angle_tensor.append(np.linspace(0., 180., int((180 / angle_steps[i]) + 1), endpoint=True))
+    S_step_i.append(radon(I, theta_angle_tensor[i]))
+    R_step_i.append(iradon(S_step_i[i], theta_angle_tensor[i]))
 
-# Step = 1º
-omega_1 = np.linspace(0., 180., 181, endpoint=True)
-S_1 = radon(I, omega_1)
-plt.figure()
-plt.title("Sinogram, [0;180º], steps of 1º")
-plt.imshow(S, cmap="gray")
 
-R_1 = iradon(S, omega_1)
-plt.figure()
-plt.title("Recontructed image, [0;180º], steps of 1º")
-plt.imshow(R_1, cmap="gray")
-plt.show()
+if not plots_same_figure:
 
-# Step = 5º
-omega_5 = np.linspace(0., 180., 36, endpoint=True)  # 181%5
-S_5 = radon(I, omega_5)
-plt.figure()
-plt.title("Sinogram, [0;180º], steps of 5º")
-plt.imshow(S_5, cmap="gray")
+    # Step = 0.25º
+    plt.figure()
+    plt.title("Sinogram, [0;180\N{DEGREE SIGN}], steps of 0.25\N{DEGREE SIGN}")
+    plt.imshow(S_step_i[0], cmap="gray")
 
-R_5 = iradon(S_5, omega_5)
-plt.figure()
-plt.title("Reconstructed image, [0;180º], steps of 5º")
-plt.imshow(R_5, cmap="gray")
-plt.show()
+    plt.figure()
+    plt.title("Reconstructed image, [0;180\N{DEGREE SIGN}], steps of 0.25\N{DEGREE SIGN}")
+    plt.imshow(R_step_i[0], cmap="gray")
+    plt.show()
 
-# Step = 10º
-omega_10 = np.linspace(0., 180., 18, endpoint=True)  # 181/18
-S_10 = radon(I, omega_10)
-plt.figure()
-plt.title("Sinogram, [0;180º], steps of 10º")
-plt.imshow(S_10, cmap="gray")
+    # Step = 1º
+    plt.figure()
+    plt.title("Sinogram, [0;180\N{DEGREE SIGN}], steps of 1\N{DEGREE SIGN}")
+    plt.imshow(S_step_i[1], cmap="gray")
 
-R_10 = iradon(S_10, omega_10)
-plt.figure()
-plt.title("Reconstructed image, [0;180º], steps of 10º")
-plt.imshow(R_10, cmap="gray")
-plt.show()
+    plt.figure()
+    plt.title("Recontructed image, [0;180\N{DEGREE SIGN}], steps of 1\N{DEGREE SIGN}")
+    plt.imshow(R_step_i[1], cmap="gray")
+    plt.show()
+
+    # Step = 5º
+    plt.figure()
+    plt.title("Sinogram, [0;180\N{DEGREE SIGN}], steps of 5\N{DEGREE SIGN}")
+    plt.imshow(S_step_i[2], cmap="gray")
+
+    plt.figure()
+    plt.title("Reconstructed image, [0;180\N{DEGREE SIGN}], steps of 5\N{DEGREE SIGN}")
+    plt.imshow(R_step_i[2], cmap="gray")
+    plt.show()
+
+    # Step = 10º
+    plt.figure()
+    plt.title("Sinogram, [0;180\N{DEGREE SIGN}], steps of 10\N{DEGREE SIGN}")
+    plt.imshow(S_step_i[3], cmap="gray")
+
+    plt.figure()
+    plt.title("Reconstructed image, [0;180\N{DEGREE SIGN}], steps of 10\N{DEGREE SIGN}")
+    plt.imshow(R_step_i[3], cmap="gray")
+    plt.show()
+
+else:
+
+    fig_singrs_steps = plt.figure()
+
+    widths_steps_singrs = [1, 181 / 721, 37 / 721, 19 / 721]
+    heights_steps_singrs = [1]
+    grid_singrs_steps = fig_singrs_steps.add_gridspec(ncols=4, nrows=1, width_ratios=widths_steps_singrs,
+                                                      height_ratios=heights_steps_singrs)
+    fig_singrs_steps.suptitle('Sinograms using a range of angles within [0, 180\N{DEGREE SIGN}] with various steps',
+                              fontsize=12)
+
+    fig_reconstrs_steps = plt.figure()
+    grid_reconstrs_steps = fig_reconstrs_steps.add_gridspec(ncols=4, nrows=1, width_ratios=[1, 1, 1, 1],
+                                                            height_ratios=[1])
+    fig_singrs_steps.suptitle(
+        'Reconstruction images using a range of angles within [0, 180\N{DEGREE SIGN}] with various '
+        'steps',
+        fontsize=12)
+
+    for i in range(len(angle_steps)):
+
+        fig_singrs_steps.add_subplot(grid_singrs_steps[0, i])
+        fig_singrs_steps.axes[i].imshow(S_step_i[i], cmap="gray")
+        fig_singrs_steps.axes[i].set_title("Step of {}\N{DEGREE SIGN}".format(angle_steps[i]), fontsize=10, rotation=30)
+
+        fig_reconstrs_steps.add_subplot(grid_reconstrs_steps[0, i])
+        fig_reconstrs_steps.axes[i].imshow(R_step_i[i], cmap="gray")
+        fig_reconstrs_steps.axes[i].set_title("Step of {}\N{DEGREE SIGN}".format(angle_steps[i]), fontsize=10,
+                                              rotation=30)
+
+    plt.show()
 
 # Ex.6 Repeat the simulations in 2. using the original angles, by adding noise to the projection
 # data. For this purpose, first scale the sinogram (SS) using maximum number of counts per
-# pixel of 103 photons, and then add the appropriate type of noise using the function
+# pixel of 10^3 photons, and then add the appropriate type of noise using the function
 # random_noise
 
 Intensity = 10 ** 3
-S_scaled = (S * Intensity) / (np.max(np.max(S)))
+S_scaled = (S_step_i[1] * Intensity) / (np.max(np.max(S_step_i[1])))
 a = 1 / next_power_of_2(len(np.unique(S_scaled)))
 S_noise = util.random_noise(S_scaled * a, 'poisson')  # explicar poisson
+
 plt.figure()
 plt.title("Sinogram with noise")
-plt.imshow(S_noise, cmap=plt.cm.gray)
+plt.imshow(S_noise, cmap="gray")
+plt.show()
 # Confirmar se falta algo aqui
 
 # Ex.7 Now reconstruct the image from the noisy projection data using iradon (with the
