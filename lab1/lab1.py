@@ -62,14 +62,14 @@ saving_processed_dir = os.path.join(script_dir, "processed_data")
 # comment/uncomment if there isn't/there's an already saved .mat file
 arr_shape = ct_arr.shape
 # ----------------------------------------------------------------
-# ct_miu_arr = np.zeros(arr_shape)
-# miu_water = 0.206
-# for i in range(arr_shape[0]):
-#     for j in range(arr_shape[1]):
-#         for k in range(arr_shape[2]):
-#             ct_miu_arr[i, j, k] = ct_arr[i, j, k] * miu_water / 1000 + miu_water
-# mdic = {"ct_miu": ct_miu_arr, "label": "IMED"}
-# savemat(os.path.join(saving_processed_dir, "ct_miu.mat"), mdic)
+ct_miu_arr = np.zeros(arr_shape)
+miu_water = 0.206
+for i in range(arr_shape[0]):
+    for j in range(arr_shape[1]):
+        for k in range(arr_shape[2]):
+            ct_miu_arr[i, j, k] = ct_arr[i, j, k] * miu_water / 1000 + miu_water
+mdic = {"ct_miu": ct_miu_arr, "label": "IMED"}
+savemat(os.path.join(saving_processed_dir, "ct_miu.mat"), mdic)
 # ----------------------------------------------------------------
 
 # loading attenuation CT image if previously saved

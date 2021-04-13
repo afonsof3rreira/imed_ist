@@ -237,14 +237,8 @@ c. showing the effects of changing the spatial resolution and/or the SNR.
 Note: Make sure to normalize both the phantom and the reconstructed
 image (to 1) so that the intensities are comparable between images."""
 
-
+print('-' * 10, 'Loading Exercise 4...')
 # normalizes both images (original and reconstructed)
-
-
-
-
-
-
 # np.where(roi_masks[1])
 # np.where(roi_masks[2])
 
@@ -252,24 +246,92 @@ norm_activity_arr = normalization(activity_arr)
 norm_reconstructed_arr = normalization(image_tensor[1])
 
 # a)
+# to check grayscale values in the ROIS
 
-y_1 = measure.profile_line(norm_reconstructed_arr, (20, 63), (63, 63))
+y_1 = measure.profile_line(norm_reconstructed_arr, (27, 63), (59, 63))
 x_1 = np.arange(0, len(y_1))
 
-y_2= measure.profile_line(norm_reconstructed_arr, (63, 63), (74, 63))
+y_2= measure.profile_line(norm_reconstructed_arr, (67, 63), (72, 63))
 x_2 = np.arange(0, len(y_2))
 
-y_3 = measure.profile_line(norm_reconstructed_arr, (101, 52), (101, 70))
+y_3 = measure.profile_line(norm_reconstructed_arr, (102, 56), (102, 61))
 x_3 = np.arange(0, len(y_3))
+
+# GT intensity profiles for the same ROIs (constant intensity along the axes)
+y_1_gt = measure.profile_line(norm_activity_arr, (27, 63), (59, 63))
+y_2_gt = measure.profile_line(norm_activity_arr, (67, 63), (72, 63))
+y_3_gt = measure.profile_line(norm_activity_arr, (102, 56), (102, 61))
+
+# Averages: noisy
+avg_I_noisy = [np.mean(y_1), np.mean(y_2), np.mean(y_3)]
+
+# Averages: original
+avg_I_or = [np.mean(y_1_gt), np.mean(y_2_gt), np.mean(y_3_gt)]
 
 plt.figure()
 plt.plot(x_1, y_1)
+plt.title("Intensity profile - Big ROI", fontsize=10)
+plt.xlabel('Pixel index [-]', fontsize=10)
+plt.ylabel('Intensity value [-]', fontsize=10)
 plt.show()
 
 plt.figure()
 plt.plot(x_2, y_2)
+plt.title("Intensity profile - Medium ROI", fontsize=10)
+plt.xlabel('Pixel index [-]', fontsize=10)
+plt.ylabel('Intensity value [-]', fontsize=10)
 plt.show()
 
 plt.figure()
 plt.plot(x_3, y_3)
+plt.title("Intensity profile - Small ROI", fontsize=10)
+plt.xlabel('Pixel index [-]', fontsize=10)
+plt.ylabel('Intensity value [-]', fontsize=10)
 plt.show()
+
+plt.figure()
+plt.title("Annotated intensity profile axes for 3 ROIs - noisy phantom")
+plt.imshow(norm_reconstructed_arr, cmap="gray")
+
+plt.vlines(x=63, ymin=27, ymax=59, colors='red', ls=':', lw=2,
+           label='Big ROI, AVG Intensity = ' + str(np.round(avg_I_noisy[0], 2)))
+
+plt.vlines(x=63, ymin=67, ymax=72, colors='blue', ls=':', lw=2,
+           label='Medium ROI, AVG Intensity = ' + str(np.round(avg_I_noisy[1], 2)))
+
+plt.hlines(y=102, xmin=56, xmax=61, colors='green', ls=':', lw=2,
+           label='Small ROI, AVG Intensity = ' + str(np.round(avg_I_noisy[2], 2)))
+
+plt.legend(bbox_to_anchor=(1.0, 1), loc='upper left')
+plt.show()
+
+
+plt.figure()
+plt.title("Annotated intensity profile axes for 3 ROIs - original phantom")
+plt.imshow(norm_activity_arr, cmap="gray")
+
+plt.vlines(x=63, ymin=27, ymax=59, colors='red', ls=':', lw=2,
+           label='Big ROI, AVG Intensity = ' + str(np.round(avg_I_or[0], 2)))
+
+plt.vlines(x=63, ymin=67, ymax=72, colors='blue', ls=':', lw=2,
+           label='Medium ROI, AVG Intensity = ' + str(np.round(avg_I_or[1], 2)))
+
+plt.hlines(y=102, xmin=56, xmax=61, colors='green', ls=':', lw=2,
+           label='Small ROI, AVG Intensity = ' + str(np.round(avg_I_or[2], 2)))
+
+plt.legend(bbox_to_anchor=(1.0, 1), loc='upper left')
+plt.show()
+
+
+
+# average intensities:
+    # Noisy
+print('        ->' + ' the noisy phantom has an average intensity value of:' + '\n')
+print(' ' * 5 + '        ->' + str(avg_I_noisy[0]) + ' along the Big ROI' + '\n')
+print(' ' * 5 + '        ->' + str(avg_I_noisy[1]) + ' along the Medium ROI' + '\n')
+print(' ' * 5 + '        ->' + str(avg_I_noisy[2]) + ' along the Small ROI' + '\n')
+    # Original
+print('        ->' + ' the original phantom has an average intensity value of:' + '\n')
+print(' ' * 5 + '        ->' + str(avg_I_or[0]) + ' along the Big ROI' + '\n')
+print(' ' * 5 + '        ->' + str(avg_I_or[1]) + ' along the Medium ROI' + '\n')
+print(' ' * 5 + '        ->' + str(avg_I_or[2]) + ' along the Small ROI' + '\n')
