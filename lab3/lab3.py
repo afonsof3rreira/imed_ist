@@ -1,14 +1,10 @@
-# matplotlib Qt
 from scipy.io import loadmat
 import numpy as np
 import matplotlib.pyplot as plt
-import math
-from scipy.io import savemat
 import os
 import sys
-import seaborn as sn
 from skimage import data, util, measure
-from skimage.transform import radon, rescale, iradon
+from skimage.transform import radon, rescale, iradon, downscale_local_mean
 from roipoly import RoiPoly, MultiRoi
 
 """A medical imaging script for LAB1's exercises
@@ -327,11 +323,52 @@ plt.show()
 # average intensities:
     # Noisy
 print('        ->' + ' the noisy phantom has an average intensity value of:' + '\n')
-print(' ' * 5 + '        ->' + str(avg_I_noisy[0]) + ' along the Big ROI' + '\n')
-print(' ' * 5 + '        ->' + str(avg_I_noisy[1]) + ' along the Medium ROI' + '\n')
-print(' ' * 5 + '        ->' + str(avg_I_noisy[2]) + ' along the Small ROI' + '\n')
+print(' ' * 5 + '        -> ' + str(avg_I_noisy[0]) + ' along the Big ROI' + '\n')
+print(' ' * 5 + '        -> ' + str(avg_I_noisy[1]) + ' along the Medium ROI' + '\n')
+print(' ' * 5 + '        -> ' + str(avg_I_noisy[2]) + ' along the Small ROI' + '\n')
     # Original
 print('        ->' + ' the original phantom has an average intensity value of:' + '\n')
-print(' ' * 5 + '        ->' + str(avg_I_or[0]) + ' along the Big ROI' + '\n')
-print(' ' * 5 + '        ->' + str(avg_I_or[1]) + ' along the Medium ROI' + '\n')
-print(' ' * 5 + '        ->' + str(avg_I_or[2]) + ' along the Small ROI' + '\n')
+print(' ' * 5 + '        -> ' + str(avg_I_or[0]) + ' along the Big ROI' + '\n')
+print(' ' * 5 + '        -> ' + str(avg_I_or[1]) + ' along the Medium ROI' + '\n')
+print(' ' * 5 + '        -> ' + str(avg_I_or[2]) + ' along the Small ROI' + '\n')
+
+
+# 4 c)
+# norm_activity_arr = normalization(activity_arr)
+# norm_reconstructed_arr = normalization(image_tensor[1])
+
+a_vec = [1e-3, 1e-4, 1e-5, 1e-6]
+reconstructed_tensor_2 = []
+
+for a in a_vec:
+    sinogram_a = normalization(1/a*util.random_noise(sinogram*a, mode='poisson', clip=False))*2500
+    reconstructed_tensor_2.append(normalization(iradon(sinogram_a, theta, filter="ramp")))
+
+# tensor containing the image grid
+image_tensor_4 = np.zeros((4, 4, 128, 128))
+
+# downsampling factors = [0, 2, 4, 8]
+factors = 2 ** np.arange(0, 4)
+
+fig_ex4 = plt.figure()
+widths_ex4 = [1, 1, 1, 1]
+heights_ex4 = [1, 1, 1, 1]
+grid_ex4 = fig_ex4.add_gridspec(ncols=4, nrows=4, width_ratios=widths_ex4, height_ratios=heights_ex4)
+im_count = 0
+
+
+for i in range(4):
+    j = 0
+    for j in range(4):
+        fig_ex4.add_subplot(grid_ex4[i, j])
+        image = downscale_local_mean(reconstructed_tensor_2[i],
+                                     factors=(factors[j], factors[j]))
+        plt.imshow(image, cmap="gray")
+        plt.title('$f={}$, $a={}$'.format(factors[j], a_vec[i]), fontsize=10)
+        plt.axis('off')
+
+plt.suptitle("Reconstructed phantoms: (downsampling factor, noise factor, SNR) = ($f$, $a$, $SNR$)", fontsize=14)
+plt.show()
+
+print(norm_reconstructed_arr.shape)
+
