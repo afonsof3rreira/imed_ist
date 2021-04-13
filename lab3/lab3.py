@@ -21,11 +21,11 @@ Authors:
 # Please note that, given that a 2D phantom is considered, only 1 of the 2 dimensions of the
 # gamma camera is used in this simulation.
 
-# choose whether or not to display scaled Sinograms and images in the same figure
-plots_same_figure = True
+
 
 def normalization(im_arr: np.ndarray):
     return (im_arr - np.min(im_arr)) / (np.max(im_arr) - np.min(im_arr))
+
 
 # TODO: Exercise 1
 """Load the phantom, get its dimensions, and display it"""
@@ -63,15 +63,15 @@ theta = np.linspace(0., 359., 360, endpoint=True)
 sinogram = radon(activity_arr, theta)
 
 # adding noise to the original image
-a=1e-5
-sinogram_noisy_arr = 1/a*util.random_noise(sinogram*a, mode='poisson', clip=False)
+a = 1e-5
+sinogram_noisy_arr = 1 / a * util.random_noise(sinogram * a, mode='poisson', clip=False)
 
 # scaling the original SPECT image to [0, 2500]
 # 2500 = max. photon count (per sensor unit and time interval)
-sinogram_noisy_arr = normalization(sinogram_noisy_arr)*2500
+sinogram_noisy_arr = normalization(sinogram_noisy_arr) * 2500
 
 # adding poisson noise to the original SPECT image
-activity_noise_arr = iradon(sinogram_noisy_arr, theta, filter="ramp") # default filter
+activity_noise_arr = iradon(sinogram_noisy_arr, theta, filter="ramp")  # default filter
 
 print('        ->' + ' the noisy phantom has intensity values from ' + str(np.max(activity_noise_arr)) + ' to ' + str(
     np.min(activity_noise_arr)))
@@ -99,104 +99,69 @@ for i in filter_list:
 # len(filters) + 1 (original) = 6
 
 # plotting images and sinograms
-if plots_same_figure:
+print(' ' * 10, 'loading plots...')
 
-    # images - only original + ramp filter...
-    fig_ex2 = plt.figure()
-    widths_ex2 = [1, 1]
-    heights_ex2 = [1]
-    grid_2 = fig_ex2.add_gridspec(ncols=2, nrows=1, width_ratios=widths_ex2, height_ratios=heights_ex2)
+# images - only original + ramp filter...
+fig_ex2 = plt.figure()
+widths_ex2 = [1, 1]
+heights_ex2 = [1]
+grid_2 = fig_ex2.add_gridspec(ncols=2, nrows=1, width_ratios=widths_ex2, height_ratios=heights_ex2)
 
-    # original
-    fig_ex2.add_subplot(grid_2[0, 0])
-    plt.imshow(image_tensor[0], cmap="gray")
-    plt.title(title_list[0], fontsize=10)
+# original
+fig_ex2.add_subplot(grid_2[0, 0])
+plt.imshow(image_tensor[0], cmap="gray")
+plt.title(title_list[0], fontsize=10)
 
-    # reconstructed
-    fig_ex2.add_subplot(grid_2[0, 1])
-    plt.imshow(image_tensor[1], cmap="gray")
-    plt.title(title_list[1], fontsize=10)
-    plt.show()
+# reconstructed
+fig_ex2.add_subplot(grid_2[0, 1])
+plt.imshow(image_tensor[1], cmap="gray")
+plt.title(title_list[1], fontsize=10)
+plt.show()
 
-    # images - original + all-filter reconstructions
-    fig_ex2_1 = plt.figure()
-    widths_ex2 = [1, 1]
-    heights_ex2 = [1, 1, 1]
-    grid_ex2 = fig_ex2_1.add_gridspec(ncols=2, nrows=3, width_ratios=widths_ex2, height_ratios=heights_ex2)
-    im_count = 0
+# images - original + all-filter reconstructions
+fig_ex2_1 = plt.figure()
+widths_ex2 = [1, 1]
+heights_ex2 = [1, 1, 1]
+grid_ex2 = fig_ex2_1.add_gridspec(ncols=2, nrows=3, width_ratios=widths_ex2, height_ratios=heights_ex2)
+im_count = 0
 
-    for i in range(3):  # rows
-        for j in range(2):  # columns
-            fig_ex2_1.add_subplot(grid_ex2[i, j])
-            plt.imshow(image_tensor[im_count], cmap="gray")
-            plt.title(title_list[im_count], fontsize=10)
-            # if im_count >
-            im_count += 1
+for i in range(3):  # rows
+    for j in range(2):  # columns
+        fig_ex2_1.add_subplot(grid_ex2[i, j])
+        plt.imshow(image_tensor[im_count], cmap="gray")
+        plt.title(title_list[im_count], fontsize=10)
+        # if im_count >
+        im_count += 1
 
-    plt.subplots_adjust(top=0.953,
-                        bottom=0.05,
-                        left=0.011,
-                        right=0.989,
-                        hspace=0.308,
-                        wspace=0.0)
-    plt.show()
+plt.subplots_adjust(top=0.953,
+                    bottom=0.05,
+                    left=0.011,
+                    right=0.989,
+                    hspace=0.308,
+                    wspace=0.0)
+plt.show()
 
-    # sinograms - original and from noisy image
-    fig_ex2_2 = plt.figure()
-    widths_ex2_2 = [1]
-    heights_ex2_2 = [1, 1]
-    grid_ex2_2 = fig_ex2_2.add_gridspec(ncols=1, nrows=2, width_ratios=widths_ex2_2, height_ratios=heights_ex2_2)
+# sinograms - original and from noisy image
+fig_ex2_2 = plt.figure()
+widths_ex2_2 = [1]
+heights_ex2_2 = [1, 1]
+grid_ex2_2 = fig_ex2_2.add_gridspec(ncols=1, nrows=2, width_ratios=widths_ex2_2, height_ratios=heights_ex2_2)
 
-    # original
-    fig_ex2_2.add_subplot(grid_ex2_2[0, 0])
-    plt.imshow(sinogram_tensor[0], cmap="gray")
-    plt.title("Sinogram of the original SPECT phantom", fontsize=12)
-    plt.xlabel('Degrees [\N{DEGREE SIGN}]', fontsize=10)
-    plt.ylabel('1D section length [pixels]', fontsize=10)
+# original
+fig_ex2_2.add_subplot(grid_ex2_2[0, 0])
+plt.imshow(sinogram_tensor[0], cmap="gray")
+plt.title("Sinogram of the original SPECT phantom", fontsize=12)
+plt.xlabel('Degrees [\N{DEGREE SIGN}]', fontsize=10)
+plt.ylabel('1D section length [pixels]', fontsize=10)
 
-    # noisy image
-    fig_ex2_2.add_subplot(grid_ex2_2[1, 0])
-    plt.subplots_adjust(top=0.92, bottom=0.08, hspace=0.4, wspace=0.4)
-    plt.imshow(sinogram_tensor[1], cmap="gray")
-    plt.title("Sinogram of the SPECT phantom after applying noise", fontsize=12)
-    plt.xlabel('Degrees [\N{DEGREE SIGN}]', fontsize=10)
-    plt.ylabel('1D section length [pixels]', fontsize=10)
-    plt.show()
-
-# plt.figure()
-# plt.title("Sinogram with noise")
-# plt.imshow(activity_noise_arr, cmap='gray')
-# plt.show()
-
-
-# sinogram_2500 = (sinogram*2500)/(np.max(np.max(sinogram)))
-# sinogram_noise_2500 = util.random_noise(sinogram_2500, mode ='poisson', clip = False)
-
-print(sinogram.shape)
-print(sinogram_noisy_arr.shape)
-
-# plt.figure()
-# plt.title("Sinogram with noise")
-# plt.imshow(sinogram_noise_2500, cmap='gray')
-# plt.show()
-#
-# reconstructed_arr = iradon(sinogram_noise_2500, theta)
-# plt.figure()
-# plt.title("reconstructed SPECT image")
-# plt.imshow(reconstructed_arr, cmap='gray')
-
-# sinogram_5000=(sinogram*5000)/(np.max(np.max(sinogram)))
-# sinogram_noise_5000 = util.random_noise(sinogram_5000, mode ='poisson', clip = False)
-
-# plt.figure()
-# plt.title("Sinogram with noise, maximum number of photon counts of 5000 ")
-# plt.imshow(sinogram_noise_5000, cmap='gray')
-# plt.show()
-
-# reconstructed = iradon (sinogram_noise_5000, theta)
-# plt.figure()
-# plt.title("reconstructed SPECT image, maximum number of photon counts of 5000")
-# plt.imshow(reconstructed, cmap=plt.cm.gray)
+# noisy image
+fig_ex2_2.add_subplot(grid_ex2_2[1, 0])
+plt.subplots_adjust(top=0.92, bottom=0.08, hspace=0.4, wspace=0.4)
+plt.imshow(sinogram_tensor[1], cmap="gray")
+plt.title("Sinogram of the SPECT phantom after applying noise", fontsize=12)
+plt.xlabel('Degrees [\N{DEGREE SIGN}]', fontsize=10)
+plt.ylabel('1D section length [pixels]', fontsize=10)
+plt.show()
 
 # TODO: Exercise 3
 """Define appropriate ROIs for the big, the medium and one of the small hotspots (using
@@ -206,6 +171,7 @@ roipoly)."""
 print('-' * 10, 'Loading Exercise 3...')
 
 # show original image
+print(' ' * 10, 'loading plots...')
 plt.figure()
 plt.imshow(image_tensor[1], interpolation='nearest', cmap="gray")
 plt.title("Click on the button to add a new ROI")
@@ -247,7 +213,7 @@ norm_reconstructed_arr = normalization(image_tensor[1])
 y_1 = measure.profile_line(norm_reconstructed_arr, (27, 63), (59, 63))
 x_1 = np.arange(0, len(y_1))
 
-y_2= measure.profile_line(norm_reconstructed_arr, (67, 63), (72, 63))
+y_2 = measure.profile_line(norm_reconstructed_arr, (67, 63), (72, 63))
 x_2 = np.arange(0, len(y_2))
 
 y_3 = measure.profile_line(norm_reconstructed_arr, (102, 56), (102, 61))
@@ -264,6 +230,7 @@ avg_I_noisy = [np.mean(y_1), np.mean(y_2), np.mean(y_3)]
 # Averages: original
 avg_I_or = [np.mean(y_1_gt), np.mean(y_2_gt), np.mean(y_3_gt)]
 
+print(' ' * 10, 'loading plots...')
 plt.figure()
 plt.plot(x_1, y_1)
 plt.title("Intensity profile - Big ROI", fontsize=10)
@@ -301,7 +268,6 @@ plt.hlines(y=102, xmin=56, xmax=61, colors='green', ls=':', lw=2,
 plt.legend(bbox_to_anchor=(1.0, 1), loc='upper left')
 plt.show()
 
-
 plt.figure()
 plt.title("Annotated intensity profile axes for 3 ROIs - original phantom")
 plt.imshow(norm_activity_arr, cmap="gray")
@@ -318,30 +284,25 @@ plt.hlines(y=102, xmin=56, xmax=61, colors='green', ls=':', lw=2,
 plt.legend(bbox_to_anchor=(1.0, 1), loc='upper left')
 plt.show()
 
-
-
 # average intensities:
-    # Noisy
+# Noisy
 print('        ->' + ' the noisy phantom has an average intensity value of:' + '\n')
 print(' ' * 5 + '        -> ' + str(avg_I_noisy[0]) + ' along the Big ROI' + '\n')
 print(' ' * 5 + '        -> ' + str(avg_I_noisy[1]) + ' along the Medium ROI' + '\n')
 print(' ' * 5 + '        -> ' + str(avg_I_noisy[2]) + ' along the Small ROI' + '\n')
-    # Original
+# Original
 print('        ->' + ' the original phantom has an average intensity value of:' + '\n')
 print(' ' * 5 + '        -> ' + str(avg_I_or[0]) + ' along the Big ROI' + '\n')
 print(' ' * 5 + '        -> ' + str(avg_I_or[1]) + ' along the Medium ROI' + '\n')
 print(' ' * 5 + '        -> ' + str(avg_I_or[2]) + ' along the Small ROI' + '\n')
 
-
 # 4 c)
-# norm_activity_arr = normalization(activity_arr)
-# norm_reconstructed_arr = normalization(image_tensor[1])
 
 a_vec = [1e-3, 1e-4, 1e-5, 1e-6]
 reconstructed_tensor_2 = []
 
 for a in a_vec:
-    sinogram_a = normalization(1/a*util.random_noise(sinogram*a, mode='poisson', clip=False))*2500
+    sinogram_a = normalization(1 / a * util.random_noise(sinogram * a, mode='poisson', clip=False)) * 2500
     reconstructed_tensor_2.append(normalization(iradon(sinogram_a, theta, filter="ramp")))
 
 # tensor containing the image grid
@@ -356,19 +317,37 @@ heights_ex4 = [1, 1, 1, 1]
 grid_ex4 = fig_ex4.add_gridspec(ncols=4, nrows=4, width_ratios=widths_ex4, height_ratios=heights_ex4)
 im_count = 0
 
+or_im_downscaled_tensor = []
+# original image, downscaled
+for k in range(4):
+    or_im_downscaled_tensor.append(downscale_local_mean(normalization(activity_arr),
+                                                        factors=(factors[k], factors[k])))
 
+noise_tensor = []
+
+for l in range(4):
+    sub_l = []
+    for k in range(4):
+        sub_l.append(np.zeros(128 // factors[k], 128 // factors[k]))
+    noise_tensor.append(sub_l)
+
+# grid with downscaled noisy images
 for i in range(4):
     j = 0
     for j in range(4):
         fig_ex4.add_subplot(grid_ex4[i, j])
         image = downscale_local_mean(reconstructed_tensor_2[i],
                                      factors=(factors[j], factors[j]))
+
+        # computing SNR
+        noise_tensor[i][j] = np.subtract(or_im_downscaled_tensor[j], image)
+        mean_signal = np.mean(or_im_downscaled_tensor[j])
+        noise_std = np.std(noise_tensor[i][j])
+        snr = np.round(mean_signal / noise_std, 2)
+
         plt.imshow(image, cmap="gray")
-        plt.title('$f={}$, $a={}$'.format(factors[j], a_vec[i]), fontsize=10)
+        plt.title('$f={}$, $a={}$, $SNR={}$'.format(factors[j], a_vec[i], snr), fontsize=10)
         plt.axis('off')
 
 plt.suptitle("Reconstructed phantoms: (downsampling factor, noise factor, SNR) = ($f$, $a$, $SNR$)", fontsize=14)
 plt.show()
-
-print(norm_reconstructed_arr.shape)
-
